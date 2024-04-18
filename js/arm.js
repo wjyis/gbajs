@@ -375,6 +375,7 @@ ARMCoreArm.prototype.constructAddressingMode1ASR = function(rs, rm) {
 };
 
 //构建ARM处理器的寻址模式1(立即数)操作,返回一个处理该模式的函数
+//该函数在执行时,根据输入的立即数,设置cpu的相关状态
 ARMCoreArm.prototype.constructAddressingMode1Immediate = function(immediate) {
 	var cpu = this.cpu;
 	return function() {
@@ -383,14 +384,26 @@ ARMCoreArm.prototype.constructAddressingMode1Immediate = function(immediate) {
 	};
 };
 
+//构建ARM处理器的寻址模式2(立即数旋转)操作
 ARMCoreArm.prototype.constructAddressingMode1ImmediateRotate = function(immediate, rotate) {
 	var cpu = this.cpu;
 	return function() {
+		//下面对这个函数进行详细解析
+		//immediate >>> rotate 使用无符号右移,无符号右移不考虑数值的符号,一律按整数处理
+		//在移动过程中,最左侧(高位)被移出的位始终用0进行填充
+		// (immediate << (32 - rotate))  使用左移运算符将immediate向左移动 32 -rotate 位,低位补0,这相当于将immediate 的高 32 - rotate 位移动到低32位
+		//最后使用按位 | 来讲两部分结果合并,两个位中至少有一个结果为1,则结果为1
+		//这样做的目的是将立即数的高位和低位进行循环位移,并且旋转后的立即数数值大小和原立即数相同(二进制表达相同)
+		//但是位的顺序有所调整
+		//问题在于为什么要这样做?
 		cpu.shifterOperand = (immediate >>> rotate) | (immediate << (32 - rotate));
 		cpu.shifterCarryOut = cpu.shifterOperand >> 31;
 	}
 };
 
+//构建ARM处理器的寻址模式3(逻辑左移操作)
+//rs表示需要进行逻辑左移操作的寄存器
+//rm表示提供移位位数的寄存器
 ARMCoreArm.prototype.constructAddressingMode1LSL = function(rs, rm) {
 	var cpu = this.cpu;
 	var gprs = cpu.gprs;
