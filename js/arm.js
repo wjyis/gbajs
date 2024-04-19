@@ -384,7 +384,7 @@ ARMCoreArm.prototype.constructAddressingMode1Immediate = function(immediate) {
 	};
 };
 
-//构建ARM处理器的寻址模式2(立即数旋转)操作
+//构建ARM处理器的寻址模式1(立即数旋转)操作
 ARMCoreArm.prototype.constructAddressingMode1ImmediateRotate = function(immediate, rotate) {
 	var cpu = this.cpu;
 	return function() {
@@ -401,13 +401,14 @@ ARMCoreArm.prototype.constructAddressingMode1ImmediateRotate = function(immediat
 	}
 };
 
-//构建ARM处理器的寻址模式3(逻辑左移操作)
+//构建ARM处理器的寻址模式1(逻辑左移操作)
 //rs表示需要进行逻辑左移操作的寄存器
 //rm表示提供移位位数的寄存器
 ARMCoreArm.prototype.constructAddressingMode1LSL = function(rs, rm) {
 	var cpu = this.cpu;
 	var gprs = cpu.gprs;
 	return function() {
+		//调用的时候增加cpu的周期数
 		++cpu.cycles;
 		var shift = gprs[rs];
 		if (rs == cpu.PC) {
@@ -434,6 +435,7 @@ ARMCoreArm.prototype.constructAddressingMode1LSL = function(rs, rm) {
 	};
 };
 
+//构建ARM处理器的寻址模式(逻辑右移)
 ARMCoreArm.prototype.constructAddressingMode1LSR = function(rs, rm) {
 	var cpu = this.cpu;
 	var gprs = cpu.gprs;
@@ -464,6 +466,8 @@ ARMCoreArm.prototype.constructAddressingMode1LSR = function(rs, rm) {
 	};
 };
 
+
+//循环右移
 ARMCoreArm.prototype.constructAddressingMode1ROR = function(rs, rm) {
 	var cpu = this.cpu;
 	var gprs = cpu.gprs;
@@ -491,6 +495,8 @@ ARMCoreArm.prototype.constructAddressingMode1ROR = function(rs, rm) {
 		}
 	};
 };
+
+//instruction代表正在进行解析的ARM指令,其中包含了寻址模式和操作码等信息
 
 ARMCoreArm.prototype.constructAddressingMode23Immediate = function(instruction, immediate, condOp) {
 	var rn = (instruction & 0x000F0000) >> 16;
