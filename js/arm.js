@@ -497,7 +497,6 @@ ARMCoreArm.prototype.constructAddressingMode1ROR = function(rs, rm) {
 };
 
 //instruction代表正在进行解析的ARM指令,其中包含了寻址模式和操作码等信息
-
 ARMCoreArm.prototype.constructAddressingMode23Immediate = function(instruction, immediate, condOp) {
 	var rn = (instruction & 0x000F0000) >> 16;
 	return this.addressingMode23Immediate[(instruction & 0x01A00000) >> 21](rn, immediate, condOp);
